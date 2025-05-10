@@ -12,8 +12,9 @@ jobs:
         ref: "mini2440"
       name: Checkout
 
-    - name: Building
-      run: make -j2
+    - name: Building in docker ubuntu:16.04
+      id: docker_1604
+      use: phugin/actions@build-mini2440
 
     - name: Check output
       run: ls -al ./output/image
