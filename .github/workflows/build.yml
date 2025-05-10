@@ -1,0 +1,17 @@
+name: Build mini2440
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_mini2440:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      name: Checkout
+
+    - name: Building
+      run: make -j2
+
+    - name: Check output
+      run: ls -al ./output/image
