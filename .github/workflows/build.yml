@@ -21,4 +21,4 @@ jobs:
       run: |
         ls -al ./output/images/
 
-    - name: Release [TODO]
+    - name: "Release TODO"
