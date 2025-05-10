@@ -19,5 +19,6 @@ jobs:
 
     - name: Check output
       run: |
-        pwd
-        ls -al
+        ls -al ./output/images/
+
+    - name: Release [TODO]
