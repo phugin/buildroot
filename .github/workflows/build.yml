@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: "origin/mini2440"
+        ref: "mini2440"
       name: Checkout
 
     - name: Building
