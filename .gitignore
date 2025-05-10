@@ -4,11 +4,10 @@
 /.config.cmd
 /.config.old
 /..config.tmp
-/.config
 *.depend
 *.o
-/*.patch
-/*.diff
+#/*.patch
+#/*.diff
 *.orig
 *.rej
 *~
