@@ -24,7 +24,9 @@ jobs:
     - name: Building in docker ubuntu:16.04
       id: docker_1604
       #uses: actions/hello-world-docker-action@v2
-      uses: phugin/actions@build-mini2440
+      uses: phugin/actions@build-smdk2440
+      with:
+        board-name: ${{ inputs.board }}
 
     - name: Check output
       run: |
