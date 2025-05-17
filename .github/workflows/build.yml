@@ -2,6 +2,15 @@ name: Build mini2440
 
 on:
   workflow_dispatch:
+    inputs:
+      board:
+        description: "Select the board branch"
+        required: true
+        default: "smdk2440"
+        type: choice
+        options:
+          - smdk2440
+          - mini2440
 
 jobs:
   build_mini2440:
@@ -9,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: "mini2440"
+        ref: ${{ inputs.board }}
       name: Checkout
 
     - name: Building in docker ubuntu:16.04
