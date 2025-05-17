@@ -29,7 +29,22 @@ jobs:
         board-name: ${{ inputs.board }}
 
     - name: Check output
+      id: checks
       run: |
         ls -al ./output/images/
+        echo "build_tag=${{ inputs.board }}_$(date +"%Y.%m.%d")" >> ${GITHUB_OUTPUT}
 
-    #- name: "Release TODO"
+    - name: Upload the images
+      uses: ncipollo/release-action@main
+      with:
+        tag: ${{ steps.checks.outputs.build_tag }}
+        artifacts: ./output/images/*
+        allowUpdates: true
+        removeArtifacts: false
+        replacesArtifacts: true
+        token: ${{ secrets.BUILDROOT_TOKEN }}
+        body: |
+          ### ${{ inputs.board }} image information
+          - u-boot: 2012.04.01
+          - kernel: 3.4.2
+          - rootfs: busybox-1.22
