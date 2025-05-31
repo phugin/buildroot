@@ -1,5 +1,11 @@
+commit 035adfc90806b37d44465e0c9f308187001d3730
+Author: Fredy Zhang <fredy.zhang@example.com>
+Date:   Sat May 31 14:24:24 2025 +0000
+
+    Modify for smdk2440
+
 diff --git a/Makefile b/Makefile
-index 901a955..9cc1639 100644
+index 901a9557..9cc1639a 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -192,8 +192,8 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
@@ -15,7 +21,7 @@ index 901a955..9cc1639 100644
  UTS_MACHINE 	:= $(ARCH)
 diff --git a/arch/arm/configs/smdk2440_defconfig b/arch/arm/configs/smdk2440_defconfig
 new file mode 100644
-index 0000000..87d8fa7
+index 00000000..87d8fa71
 --- /dev/null
 +++ b/arch/arm/configs/smdk2440_defconfig
 @@ -0,0 +1,2247 @@
@@ -2267,10 +2273,10 @@ index 0000000..87d8fa7
 +CONFIG_AVERAGE=y
 +# CONFIG_CORDIC is not set
 diff --git a/arch/arm/mach-s3c24xx/common-smdk.c b/arch/arm/mach-s3c24xx/common-smdk.c
-index 084604b..f7dce9b 100644
+index 084604be..a16e3dce 100644
 --- a/arch/arm/mach-s3c24xx/common-smdk.c
 +++ b/arch/arm/mach-s3c24xx/common-smdk.c
-@@ -110,43 +110,23 @@ static struct platform_device smdk_led7 = {
+@@ -110,43 +110,33 @@ static struct platform_device smdk_led7 = {
  
  static struct mtd_partition smdk_default_nand_part[] = {
  	[0] = {
@@ -2291,21 +2297,27 @@ index 084604b..f7dce9b 100644
  	[2] = {
 -		.name	= "S3C2410 flash partition 2",
 -		.offset = SZ_4M,
--		.size	= SZ_4M,
--	},
--	[3] = {
++		.name	= "kernel_a",
++		.offset = MTDPART_OFS_APPEND,
+ 		.size	= SZ_4M,
+ 	},
+ 	[3] = {
 -		.name	= "S3C2410 flash partition 3",
 -		.offset	= SZ_8M,
-+		.name	= "kernel",
+-		.size	= SZ_2M,
++		.name	= "kernel_b",
 +		.offset = MTDPART_OFS_APPEND,
- 		.size	= SZ_2M,
++		.size	= SZ_4M,
  	},
--	[4] = {
+ 	[4] = {
 -		.name	= "S3C2410 flash partition 4",
 -		.offset = SZ_1M * 10,
 -		.size	= SZ_4M,
--	},
--	[5] = {
++		.name	= "rootfs_a",
++		.offset = MTDPART_OFS_APPEND,
++		.size	= SZ_128M,
+ 	},
+ 	[5] = {
 -		.name	= "S3C2410 flash partition 5",
 -		.offset	= SZ_1M * 14,
 -		.size	= SZ_1M * 10,
@@ -2318,14 +2330,13 @@ index 084604b..f7dce9b 100644
 -	[7] = {
 -		.name	= "S3C2410 flash partition 7",
 -		.offset = SZ_1M * 48,
-+	[3] = {
-+		.name	= "rootfs",
++		.name	= "rootfs_b",
 +		.offset	= MTDPART_OFS_APPEND,
  		.size	= MTDPART_SIZ_FULL,
  	}
  };
 diff --git a/arch/arm/mach-s3c24xx/mach-mini2440.c b/arch/arm/mach-s3c24xx/mach-mini2440.c
-index 5d66fb2..6eb39b7 100644
+index 5d66fb21..6eb39b7e 100644
 --- a/arch/arm/mach-s3c24xx/mach-mini2440.c
 +++ b/arch/arm/mach-s3c24xx/mach-mini2440.c
 @@ -247,27 +247,25 @@ static struct s3c24xx_mci_pdata mini2440_mmc_cfg __initdata = {
@@ -2365,7 +2376,7 @@ index 5d66fb2..6eb39b7 100644
  
  static struct s3c2410_nand_set mini2440_nand_sets[] __initdata = {
 diff --git a/arch/arm/mach-s3c24xx/mach-smdk2440.c b/arch/arm/mach-s3c24xx/mach-smdk2440.c
-index 83a1036..b92c2bd 100644
+index 83a1036d..b92c2bd5 100644
 --- a/arch/arm/mach-s3c24xx/mach-smdk2440.c
 +++ b/arch/arm/mach-s3c24xx/mach-smdk2440.c
 @@ -162,7 +162,7 @@ static struct platform_device *smdk2440_devices[] __initdata = {
@@ -2378,7 +2389,7 @@ index 83a1036..b92c2bd 100644
  }
  
 diff --git a/fs/Kconfig b/fs/Kconfig
-index f95ae3a..f19f343 100644
+index f95ae3a0..f19f3434 100644
 --- a/fs/Kconfig
 +++ b/fs/Kconfig
 @@ -203,6 +203,7 @@ source "fs/hfsplus/Kconfig"
@@ -2391,7 +2402,7 @@ index f95ae3a..f19f343 100644
  source "fs/ubifs/Kconfig"
 diff --git a/fs/Kconfig.pre.yaffs b/fs/Kconfig.pre.yaffs
 new file mode 100644
-index 0000000..f95ae3a
+index 00000000..f95ae3a0
 --- /dev/null
 +++ b/fs/Kconfig.pre.yaffs
 @@ -0,0 +1,279 @@
@@ -2675,7 +2686,7 @@ index 0000000..f95ae3a
 +
 +endmenu
 diff --git a/fs/Makefile b/fs/Makefile
-index 2fb9779..79b94eb 100644
+index 2fb97793..79b94ebe 100644
 --- a/fs/Makefile
 +++ b/fs/Makefile
 @@ -125,3 +125,4 @@ obj-$(CONFIG_GFS2_FS)           += gfs2/
@@ -2685,7 +2696,7 @@ index 2fb9779..79b94eb 100644
 +obj-$(CONFIG_YAFFS_FS)		+= yaffs2/
 diff --git a/fs/Makefile.pre.yaffs b/fs/Makefile.pre.yaffs
 new file mode 100644
-index 0000000..2fb9779
+index 00000000..2fb97793
 --- /dev/null
 +++ b/fs/Makefile.pre.yaffs
 @@ -0,0 +1,127 @@
@@ -2818,7 +2829,7 @@ index 0000000..2fb9779
 +obj-$(CONFIG_PSTORE)		+= pstore/
 diff --git a/fs/yaffs2/Kconfig b/fs/yaffs2/Kconfig
 new file mode 100644
-index 0000000..658feea
+index 00000000..658feea5
 --- /dev/null
 +++ b/fs/yaffs2/Kconfig
 @@ -0,0 +1,161 @@
@@ -2985,7 +2996,7 @@ index 0000000..658feea
 +	 If unsure, say Y.
 diff --git a/fs/yaffs2/Makefile b/fs/yaffs2/Makefile
 new file mode 100644
-index 0000000..6a8729c
+index 00000000..6a8729c4
 --- /dev/null
 +++ b/fs/yaffs2/Makefile
 @@ -0,0 +1,18 @@
@@ -3009,7 +3020,7 @@ index 0000000..6a8729c
 +
 diff --git a/fs/yaffs2/yaffs_allocator.c b/fs/yaffs2/yaffs_allocator.c
 new file mode 100644
-index 0000000..c8f2861
+index 00000000..c8f2861c
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_allocator.c
 @@ -0,0 +1,357 @@
@@ -3372,7 +3383,7 @@ index 0000000..c8f2861
 +
 diff --git a/fs/yaffs2/yaffs_allocator.h b/fs/yaffs2/yaffs_allocator.h
 new file mode 100644
-index 0000000..a8cc322
+index 00000000..a8cc3226
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_allocator.h
 @@ -0,0 +1,30 @@
@@ -3408,7 +3419,7 @@ index 0000000..a8cc322
 +#endif
 diff --git a/fs/yaffs2/yaffs_attribs.c b/fs/yaffs2/yaffs_attribs.c
 new file mode 100644
-index 0000000..3d778f2
+index 00000000..3d778f22
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_attribs.c
 @@ -0,0 +1,124 @@
@@ -3538,7 +3549,7 @@ index 0000000..3d778f2
 +}
 diff --git a/fs/yaffs2/yaffs_attribs.h b/fs/yaffs2/yaffs_attribs.h
 new file mode 100644
-index 0000000..5b21b08
+index 00000000..5b21b085
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_attribs.h
 @@ -0,0 +1,28 @@
@@ -3572,7 +3583,7 @@ index 0000000..5b21b08
 +#endif
 diff --git a/fs/yaffs2/yaffs_bitmap.c b/fs/yaffs2/yaffs_bitmap.c
 new file mode 100644
-index 0000000..4440e93
+index 00000000..4440e930
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_bitmap.c
 @@ -0,0 +1,97 @@
@@ -3675,7 +3686,7 @@ index 0000000..4440e93
 +}
 diff --git a/fs/yaffs2/yaffs_bitmap.h b/fs/yaffs2/yaffs_bitmap.h
 new file mode 100644
-index 0000000..e26b37d
+index 00000000..e26b37d8
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_bitmap.h
 @@ -0,0 +1,33 @@
@@ -3714,7 +3725,7 @@ index 0000000..e26b37d
 +#endif
 diff --git a/fs/yaffs2/yaffs_checkptrw.c b/fs/yaffs2/yaffs_checkptrw.c
 new file mode 100644
-index 0000000..d897044
+index 00000000..d8970449
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_checkptrw.c
 @@ -0,0 +1,457 @@
@@ -4177,7 +4188,7 @@ index 0000000..d897044
 +}
 diff --git a/fs/yaffs2/yaffs_checkptrw.h b/fs/yaffs2/yaffs_checkptrw.h
 new file mode 100644
-index 0000000..cdbaba7
+index 00000000..cdbaba71
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_checkptrw.h
 @@ -0,0 +1,33 @@
@@ -4216,7 +4227,7 @@ index 0000000..cdbaba7
 +#endif
 diff --git a/fs/yaffs2/yaffs_ecc.c b/fs/yaffs2/yaffs_ecc.c
 new file mode 100644
-index 0000000..9294107
+index 00000000..9294107c
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_ecc.c
 @@ -0,0 +1,281 @@
@@ -4503,7 +4514,7 @@ index 0000000..9294107
 +}
 diff --git a/fs/yaffs2/yaffs_ecc.h b/fs/yaffs2/yaffs_ecc.h
 new file mode 100644
-index 0000000..17d47bd
+index 00000000..17d47bd8
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_ecc.h
 @@ -0,0 +1,44 @@
@@ -4553,7 +4564,7 @@ index 0000000..17d47bd
 +#endif
 diff --git a/fs/yaffs2/yaffs_getblockinfo.h b/fs/yaffs2/yaffs_getblockinfo.h
 new file mode 100644
-index 0000000..8fd0802
+index 00000000..8fd0802b
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_getblockinfo.h
 @@ -0,0 +1,35 @@
@@ -4594,7 +4605,7 @@ index 0000000..8fd0802
 +#endif
 diff --git a/fs/yaffs2/yaffs_guts.c b/fs/yaffs2/yaffs_guts.c
 new file mode 100644
-index 0000000..1602c4b
+index 00000000..1602c4bd
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_guts.c
 @@ -0,0 +1,5010 @@
@@ -9610,7 +9621,7 @@ index 0000000..1602c4b
 +}
 diff --git a/fs/yaffs2/yaffs_guts.h b/fs/yaffs2/yaffs_guts.h
 new file mode 100644
-index 0000000..1aefb85
+index 00000000..1aefb851
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_guts.h
 @@ -0,0 +1,975 @@
@@ -10591,7 +10602,7 @@ index 0000000..1aefb85
 +#endif
 diff --git a/fs/yaffs2/yaffs_linux.h b/fs/yaffs2/yaffs_linux.h
 new file mode 100644
-index 0000000..8c522c8
+index 00000000..8c522c84
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_linux.h
 @@ -0,0 +1,41 @@
@@ -10638,7 +10649,7 @@ index 0000000..8c522c8
 +#endif
 diff --git a/fs/yaffs2/yaffs_mtdif.c b/fs/yaffs2/yaffs_mtdif.c
 new file mode 100644
-index 0000000..68d1d62
+index 00000000..68d1d624
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_mtdif.c
 @@ -0,0 +1,53 @@
@@ -10697,7 +10708,7 @@ index 0000000..68d1d62
 +}
 diff --git a/fs/yaffs2/yaffs_mtdif.h b/fs/yaffs2/yaffs_mtdif.h
 new file mode 100644
-index 0000000..3ef5581
+index 00000000..3ef5581f
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_mtdif.h
 @@ -0,0 +1,23 @@
@@ -10726,7 +10737,7 @@ index 0000000..3ef5581
 +#endif
 diff --git a/fs/yaffs2/yaffs_mtdif1.c b/fs/yaffs2/yaffs_mtdif1.c
 new file mode 100644
-index 0000000..54d0d2c
+index 00000000..54d0d2c8
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_mtdif1.c
 @@ -0,0 +1,364 @@
@@ -11096,7 +11107,7 @@ index 0000000..54d0d2c
 +#endif /*MTD_VERSION */
 diff --git a/fs/yaffs2/yaffs_mtdif1.h b/fs/yaffs2/yaffs_mtdif1.h
 new file mode 100644
-index 0000000..6a5df50
+index 00000000..6a5df504
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_mtdif1.h
 @@ -0,0 +1,29 @@
@@ -11131,7 +11142,7 @@ index 0000000..6a5df50
 +#endif
 diff --git a/fs/yaffs2/yaffs_mtdif2.c b/fs/yaffs2/yaffs_mtdif2.c
 new file mode 100644
-index 0000000..3d4051f
+index 00000000..3d4051ff
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_mtdif2.c
 @@ -0,0 +1,268 @@
@@ -11405,7 +11416,7 @@ index 0000000..3d4051f
 +
 diff --git a/fs/yaffs2/yaffs_mtdif2.h b/fs/yaffs2/yaffs_mtdif2.h
 new file mode 100644
-index 0000000..d4d1858
+index 00000000..d4d18585
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_mtdif2.h
 @@ -0,0 +1,29 @@
@@ -11440,7 +11451,7 @@ index 0000000..d4d1858
 +#endif
 diff --git a/fs/yaffs2/yaffs_nameval.c b/fs/yaffs2/yaffs_nameval.c
 new file mode 100644
-index 0000000..4bdf4ed
+index 00000000..4bdf4ed7
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_nameval.c
 @@ -0,0 +1,208 @@
@@ -11654,7 +11665,7 @@ index 0000000..4bdf4ed
 +}
 diff --git a/fs/yaffs2/yaffs_nameval.h b/fs/yaffs2/yaffs_nameval.h
 new file mode 100644
-index 0000000..951e64f
+index 00000000..951e64f8
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_nameval.h
 @@ -0,0 +1,28 @@
@@ -11688,7 +11699,7 @@ index 0000000..951e64f
 +#endif
 diff --git a/fs/yaffs2/yaffs_nand.c b/fs/yaffs2/yaffs_nand.c
 new file mode 100644
-index 0000000..165d010
+index 00000000..165d0100
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_nand.c
 @@ -0,0 +1,120 @@
@@ -11814,7 +11825,7 @@ index 0000000..165d010
 +}
 diff --git a/fs/yaffs2/yaffs_nand.h b/fs/yaffs2/yaffs_nand.h
 new file mode 100644
-index 0000000..7134662
+index 00000000..71346627
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_nand.h
 @@ -0,0 +1,38 @@
@@ -11858,7 +11869,7 @@ index 0000000..7134662
 +#endif
 diff --git a/fs/yaffs2/yaffs_packedtags1.c b/fs/yaffs2/yaffs_packedtags1.c
 new file mode 100644
-index 0000000..dd9a331
+index 00000000..dd9a331d
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_packedtags1.c
 @@ -0,0 +1,56 @@
@@ -11920,7 +11931,7 @@ index 0000000..dd9a331
 +}
 diff --git a/fs/yaffs2/yaffs_packedtags1.h b/fs/yaffs2/yaffs_packedtags1.h
 new file mode 100644
-index 0000000..b80f0a5
+index 00000000..b80f0a5b
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_packedtags1.h
 @@ -0,0 +1,39 @@
@@ -11965,7 +11976,7 @@ index 0000000..b80f0a5
 +#endif
 diff --git a/fs/yaffs2/yaffs_packedtags2.c b/fs/yaffs2/yaffs_packedtags2.c
 new file mode 100644
-index 0000000..e1d18cc
+index 00000000..e1d18cc3
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_packedtags2.c
 @@ -0,0 +1,197 @@
@@ -12168,7 +12179,7 @@ index 0000000..e1d18cc
 +}
 diff --git a/fs/yaffs2/yaffs_packedtags2.h b/fs/yaffs2/yaffs_packedtags2.h
 new file mode 100644
-index 0000000..675e719
+index 00000000..675e7194
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_packedtags2.h
 @@ -0,0 +1,47 @@
@@ -12221,7 +12232,7 @@ index 0000000..675e719
 +#endif
 diff --git a/fs/yaffs2/yaffs_summary.c b/fs/yaffs2/yaffs_summary.c
 new file mode 100644
-index 0000000..6f3c783
+index 00000000..6f3c7839
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_summary.c
 @@ -0,0 +1,313 @@
@@ -12540,7 +12551,7 @@ index 0000000..6f3c783
 +}
 diff --git a/fs/yaffs2/yaffs_summary.h b/fs/yaffs2/yaffs_summary.h
 new file mode 100644
-index 0000000..be141d0
+index 00000000..be141d07
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_summary.h
 @@ -0,0 +1,37 @@
@@ -12583,7 +12594,7 @@ index 0000000..be141d0
 +#endif
 diff --git a/fs/yaffs2/yaffs_tagscompat.c b/fs/yaffs2/yaffs_tagscompat.c
 new file mode 100644
-index 0000000..32ba11f
+index 00000000..32ba11fa
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_tagscompat.c
 @@ -0,0 +1,407 @@
@@ -12996,7 +13007,7 @@ index 0000000..32ba11f
 +}
 diff --git a/fs/yaffs2/yaffs_tagscompat.h b/fs/yaffs2/yaffs_tagscompat.h
 new file mode 100644
-index 0000000..b3c6655
+index 00000000..b3c66557
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_tagscompat.h
 @@ -0,0 +1,36 @@
@@ -13038,7 +13049,7 @@ index 0000000..b3c6655
 +#endif
 diff --git a/fs/yaffs2/yaffs_trace.h b/fs/yaffs2/yaffs_trace.h
 new file mode 100644
-index 0000000..fd26054
+index 00000000..fd26054d
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_trace.h
 @@ -0,0 +1,57 @@
@@ -13101,7 +13112,7 @@ index 0000000..fd26054
 +#endif
 diff --git a/fs/yaffs2/yaffs_verify.c b/fs/yaffs2/yaffs_verify.c
 new file mode 100644
-index 0000000..e8f2f0a
+index 00000000..e8f2f0a6
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_verify.c
 @@ -0,0 +1,529 @@
@@ -13636,7 +13647,7 @@ index 0000000..e8f2f0a
 +}
 diff --git a/fs/yaffs2/yaffs_verify.h b/fs/yaffs2/yaffs_verify.h
 new file mode 100644
-index 0000000..4f4af8d
+index 00000000..4f4af8d2
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_verify.h
 @@ -0,0 +1,43 @@
@@ -13685,7 +13696,7 @@ index 0000000..4f4af8d
 +#endif
 diff --git a/fs/yaffs2/yaffs_vfs.c b/fs/yaffs2/yaffs_vfs.c
 new file mode 100644
-index 0000000..549d089
+index 00000000..549d089d
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_vfs.c
 @@ -0,0 +1,3464 @@
@@ -17155,7 +17166,7 @@ index 0000000..549d089
 +MODULE_LICENSE("GPL");
 diff --git a/fs/yaffs2/yaffs_yaffs1.c b/fs/yaffs2/yaffs_yaffs1.c
 new file mode 100644
-index 0000000..d277e20
+index 00000000..d277e20e
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_yaffs1.c
 @@ -0,0 +1,422 @@
@@ -17583,7 +17594,7 @@ index 0000000..d277e20
 +}
 diff --git a/fs/yaffs2/yaffs_yaffs1.h b/fs/yaffs2/yaffs_yaffs1.h
 new file mode 100644
-index 0000000..97e2fdd
+index 00000000..97e2fdd0
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_yaffs1.h
 @@ -0,0 +1,22 @@
@@ -17611,7 +17622,7 @@ index 0000000..97e2fdd
 +#endif
 diff --git a/fs/yaffs2/yaffs_yaffs2.c b/fs/yaffs2/yaffs_yaffs2.c
 new file mode 100644
-index 0000000..f1dc972
+index 00000000..f1dc9722
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_yaffs2.c
 @@ -0,0 +1,1532 @@
@@ -19149,7 +19160,7 @@ index 0000000..f1dc972
 +}
 diff --git a/fs/yaffs2/yaffs_yaffs2.h b/fs/yaffs2/yaffs_yaffs2.h
 new file mode 100644
-index 0000000..2363bfd
+index 00000000..2363bfd8
 --- /dev/null
 +++ b/fs/yaffs2/yaffs_yaffs2.h
 @@ -0,0 +1,39 @@
@@ -19194,7 +19205,7 @@ index 0000000..2363bfd
 +#endif
 diff --git a/fs/yaffs2/yportenv.h b/fs/yaffs2/yportenv.h
 new file mode 100644
-index 0000000..666d909
+index 00000000..666d909b
 --- /dev/null
 +++ b/fs/yaffs2/yportenv.h
 @@ -0,0 +1,82 @@
