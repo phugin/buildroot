@@ -1381,7 +1381,7 @@ index 0000000..342fd93
 +						"128k(params),"		\
 +						"4m(kernel_a),"	\
 +						"4m(kernel_b),"	\
-+						"128m(rootfs_a)"		\
++						"128m(rootfs_a),"		\
 +						"-(rootfs_b)"		\
 +
 +
